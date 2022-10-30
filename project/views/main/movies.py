@@ -1,29 +1,33 @@
+from flask import request
 from flask_restx import Namespace, Resource
 
-from project.container import genre_service
-from project.setup.api.models import genre
+from project.container import movie_service
+from project.setup.api.models import movie
 from project.setup.api.parsers import page_parser
 
-api = Namespace('genres')
+api = Namespace('movies')
 
 
 @api.route('/')
-class GenresView(Resource):
+class MoviesView(Resource):
     @api.expect(page_parser)
-    @api.marshal_with(genre, as_list=True, code=200, description='OK')
+    @api.marshal_with(movie, as_list=True, code=200, description='OK')
     def get(self):
         """
-        Get all genres.
+        Get all movies.
         """
-        return genre_service.get_all(**page_parser.parse_args())
+
+        status = request.args.get("status")
+
+        return movie_service.get_all(filter=status, **page_parser.parse_args())
 
 
-@api.route('/<int:genre_id>/')
-class GenreView(Resource):
+@api.route('/<int:movie_id>/')
+class MovieView(Resource):
     @api.response(404, 'Not Found')
-    @api.marshal_with(genre, code=200, description='OK')
-    def get(self, genre_id: int):
+    @api.marshal_with(movie, code=200, description='OK')
+    def get(self, movie_id: int):
         """
-        Get genre by id.
+        Get movie by id.
         """
-        return genre_service.get_item(genre_id)
+        return movie_service.get_item(movie_id)
